@@ -1,20 +1,30 @@
 class Solution {
 public:
-    bool solve(int i,int j,int p1,int p2,bool flag,vector<int>&nums){
-        if(i>j){
-            return p1>=p2;
+     int solve(vector<int>& nums, bool turn ,int i, int j ){
+        if(i>j)
+            return 0;
+        
+        if(turn){
+         return max(nums[i]+solve(nums,false,i+1,j),nums[j]+solve(nums,false,i,j-1));
         }
         
-        if(flag){
-            return solve(i+1,j,p1+nums[i],p2,!flag,nums) || solve(i,j-1,p1+nums[j],p2,!flag,nums);
-        }else{
-            return solve(i+1,j,p1,p2+nums[i],!flag,nums) && solve(i,j-1,p1,p2+nums[j],!flag,nums);
-        }
+        else
+           return min(solve(nums,true,i+1,j),solve(nums,true,i,j-1));
+        
     }
+    
+
     bool predictTheWinner(vector<int>& nums) {
-        int i=0,j=nums.size()-1;
-        int p1=0,p2=0;
-        bool flag=true;
-        return solve(i,j,p1,p2,flag,nums);
+        
+        int totalSum=0;
+        for(int i=0;i<nums.size();i++){
+            totalSum+=nums[i];
+        }
+        
+        int sum1= solve(nums,true,0,nums.size()-1);
+        
+        int sum2=totalSum-sum1;
+        
+        return sum1>=sum2;
     }
 };
