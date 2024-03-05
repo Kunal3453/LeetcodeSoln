@@ -1,50 +1,82 @@
-#define pii pair<int, int>
-int fx[] = {-1, 1, 0, 0};
-int fy[] = {0, 0, -1, 1};
+
 class Solution {
 public:
-    queue<pii> q;
-    int n, m, vis[11][11];
-    bool valid(int x, int y, vector<vector<int>>& grid) {
-        if(x >= 0 and x < n and y >= 0 and y < m and !vis[x][y] and grid[x][y]) return true;
-        else return false;
-    }
-    int bfs(vector<vector<int>>& grid) {
-        int step = -1;
-        while(!q.empty()) {
-            int sz = q.size();
-            while(sz--) {
-                pii top = q.front();
-                int x = top.first;
-                int y = top.second;
-                q.pop();
-                for(int k=0; k<4; k++) {
-                    int tx = x + fx[k];
-                    int ty = y + fy[k];
-                    if(valid(tx, ty, grid)) {
-                        vis[tx][ty] = 1;
-                        q.push({tx, ty});
-                    }
-                }
-            }
-            step++;
+    
+    bool isValid(int i, int j, int n, int m, vector<vector<int>>& grid){
+        if(i>=0 && i<n && j>=0 && j<m && grid[i][j] == 1){
+            return true;
         }
-        return step;
+        return false;
     }
+    
     int orangesRotting(vector<vector<int>>& grid) {
-        n = grid.size(), m = grid[0].size();
-        for(int i=0; i<n; i++) {
-            for(int j=0; j<m; j++) {
-                if(grid[i][j] == 2) {
-                    vis[i][j] = 1;
+        int n = grid.size();
+        int m = grid[0].size();
+        
+        int fresh = 0, time = 0;
+        queue<pair<int, int>>q;
+        
+        for(int i=0; i<n; i++){
+            for(int j=0; j<m; j++){
+                if(grid[i][j] == 2){
+                    // push into queue
                     q.push({i, j});
                 }
+                else if(grid[i][j] == 1){
+                    fresh++;
+                }
             }
         }
-        int ans = max(0, bfs(grid));
-        for(int i=0; i<n; i++)
-            for(int j=0; j<m; j++)
-                if(vis[i][j] == 0 and grid[i][j] == 1) return -1;
-        return ans;
+        if(fresh == 0) return 0;
+        
+        // start BFS traversal
+        while(!q.empty()){
+            
+            int size_q = q.size();
+            int temp = 0;
+            while(size_q != 0){
+                
+                pair<int, int>p = q.front();
+                q.pop();
+                
+                int x1 = p.first;
+                int y1 = p.second;
+                
+                int ax[4] = { 1, -1, 0, 0};
+                int ay[4] = { 0, 0 , 1 , -1};
+                
+                for(int i=0; i<4; i++){
+                    int x = ax[i] + x1;
+                    int y = ay[i] + y1;
+                    
+                    if(isValid(x, y, n, m, grid)){
+                        temp++;
+                        grid[x][y] = 2;
+                        q.push({x, y});
+                    }
+                }
+                
+                size_q--;
+                
+            }
+            if(temp != 0) time++;
+        }
+        
+        
+        
+        // we checked if any fresh oranges are still there
+        for(int i=0; i<n; i++){
+            for(int j=0; j<m; j++){
+                if(grid[i][j] == 1){
+                    time = 0;
+                    break;
+                }
+            }
+        }
+        
+        
+        
+        return (time == 0) ? -1 : time ;
+        
     }
 };
